@@ -1,0 +1,63 @@
+import heapq
+
+def dijkstra(graph, start):
+    distances = {node: float('infinity') for node in graph}
+    distances[start] = 0
+    priority_queue = [(0, start)]
+
+    while priority_queue:
+        current_distance, current_node = heapq.heappop(priority_queue)
+
+        if current_distance > distances[current_node]:
+            continue
+
+        for neighbor, weight in graph[current_node].items():
+            distance = current_distance + weight
+
+            if distance < distances[neighbor]:
+                distances[neighbor] = distance
+                heapq.heappush(priority_queue, (distance, neighbor))
+
+    return distances
+
+def prim(graph):
+    start_node = list(graph.keys())[0]
+    visited = set()
+    edges = [(weight, start_node, to) for to, weight in graph[start_node].items()]
+    heapq.heapify(edges)
+    mst = []
+    total_cost = 0
+
+    while edges:
+        weight, frm, to = heapq.heappop(edges)
+        if to in visited:
+            continue
+
+        visited.add(to)
+        mst.append((frm, to, weight))
+        total_cost += weight
+
+        for next_node, next_weight in graph[to].items():
+            if next_node not in visited:
+                heapq.heappush(edges, (next_weight, to, next_node))
+
+    return mst, total_cost
+
+# Graf temsili (Komşuluk listesi)
+graph = {
+    'A': {'B': 4, 'C': 2, 'D': 10},
+    'B': {'A': 4, 'C': 5, 'E': 8},
+    'C': {'A': 2, 'B': 5, 'D': 3, 'E': 4},
+    'D': {'A': 10, 'C': 3, 'E': 6, 'F': 6},
+    'E': {'B': 8, 'C': 4, 'D': 6, 'F': 1},
+    'F': {'D': 6, 'E': 1}
+}
+
+# En kısa yol hesaplama (Dijkstra)
+shortest_paths = dijkstra(graph, 'A')
+print("En kısa yollar (A'dan):", shortest_paths)
+
+# Minimum yayılan ağaç hesaplama (Prim)
+mst, cost = prim(graph)
+print("Minimum Yayılan Ağaç:", mst)
+print("Toplam Maliyet:", cost)
